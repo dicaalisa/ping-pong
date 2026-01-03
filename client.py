@@ -14,7 +14,7 @@ def connect_to_server():
     while True:
         try:
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect(('0.tcp.eu.ngrok.io', 14910)) # ---- Підключення до сервера
+            client.connect(('localhost', 8080)) # ---- Підключення до сервера
             buffer = ""
             game_state = {}
             my_id = int(client.recv(24).decode())
@@ -41,8 +41,19 @@ def receive():
 font_win = font.Font(None, 72)
 font_main = font.Font(None, 36)
 # --- ЗОБРАЖЕННЯ ----
-
+player1_img = image.load('paddle.png')
+player1_img = transform.flip(player1_img, False, True)
+player1_img = transform.scale(player1_img, (50, 100))
+player2_img = image.load('paddle.png')
+player2_img = transform.scale(player2_img, (50, 100))
+ball_img = image.load('ball.png')
+ball_img = transform.scale(ball_img, (50, 100))
+BG_img = image.load('background.png')
+BG_img = transform.scale(BG_img, (WIDTH, HEIGHT))
 # --- ЗВУКИ ---
+mixer.init()
+WALL_HIT_SOUND = mixer.Sound("teftelya_sound.flac")
+PADDLE_HIT_SOUND = mixer.Sound("teftelya_sound.flac")
 
 # --- ГРА ---
 game_over = False
@@ -88,10 +99,18 @@ while True:
         continue  # Блокує гру після перемоги
 
     if game_state:
+        print(game_state)
         screen.fill((30, 30, 30))
-        draw.rect(screen, (0, 255, 0), (20, game_state['paddles']['0'], 20, 100))
-        draw.rect(screen, (255, 0, 255), (WIDTH - 40, game_state['paddles']['1'], 20, 100))
-        draw.circle(screen, (255, 255, 255), (game_state['ball']['x'], game_state['ball']['y']), 10)
+        screen.blit(BG_img, (0, 0))
+        #draw.rect(screen, (0, 255, 0), (20, game_state['paddles']['0'], 20, 100))
+        #draw.rect(screen, (255, 0, 255), (WIDTH - 40, game_state['paddles']['1'], 20, 100))
+        #draw.circle(screen, (255, 255, 255), (game_state['ball']['x'], game_state['ball']['y']), 10)
+        
+
+        screen.blit(player1_img, (20,game_state['paddles']['0']))
+        screen.blit(player2_img, (WIDTH - 40,game_state['paddles']['1']))
+        screen.blit(ball_img, (game_state['ball']['x'],game_state['ball']['y']))
+
         score_text = font_main.render(f"{game_state['scores'][0]} : {game_state['scores'][1]}", True, (255, 255, 255))
         screen.blit(score_text, (WIDTH // 2 -25, 20))
 
